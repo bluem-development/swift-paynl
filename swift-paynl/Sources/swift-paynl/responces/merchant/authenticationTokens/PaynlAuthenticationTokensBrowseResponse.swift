@@ -8,14 +8,32 @@
 import Foundation
 
 struct PaynlAuthenticationTokensBrowseResponse: Codable {
-    let total               : Int
-    let links               : [Link]
-    let authenticationTokens: [AuthenticationToken]
+    let total                            : Int
+    let links                            : [Link]
+    private(set) var authenticationTokens: [AuthenticationToken]
 
     enum CodingKeys: String, CodingKey {
         case total
         case authenticationTokens
         case links = "_links"
+    }
+}
+
+extension PaynlAuthenticationTokensBrowseResponse {
+    internal mutating func validAuthenticationTokens() -> [AuthenticationToken]? {
+
+        let authenticationTokens = authenticationTokens
+        guard !authenticationTokens.isEmpty else { return nil }
+
+        let validTokens = authenticationTokens.filter { obj in
+            if obj.merchant.status != "ACTIVE" { return false }
+            guard obj.deletedAt == nil else { return false }
+
+            return true
+        }
+        self.authenticationTokens = validTokens
+
+        return validTokens
     }
 }
 
@@ -30,5 +48,5 @@ struct AuthenticationToken: Codable {
     let deletedAt : String?
     let deletedBy : String?
     let merchant  : Merchant
-    let links     : [Link]
+    let links     : [Link]?
 }

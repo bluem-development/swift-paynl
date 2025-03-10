@@ -15,7 +15,6 @@ public class PaynlConnectionContext {
      1. The `token` is mandatory for authenticating API requests
      - API endpoint: https://rest.pay.nl/v2/authenticationtokens
      - The `authenticationtokens` API request returns all authentication tokens (an array of token objects)
-     - The token object contains an `deletedAt` field that indicates the expiration time
      - If a token is requested but all tokens are expired, a new API request must be sent to retrieve and return a valid token
 
      2. The `serviceId` is mandatory for performing an API call
@@ -24,109 +23,85 @@ public class PaynlConnectionContext {
      */
 
 
-    fileprivate var config             : PaynlConfiguration?
-    private     var tokens             : [PaynlAuthenticationTokenTest]?
-    private     var timer              : Timer?
-    private     let duration           = 300.0 // 5 minutes in seconds
-    private     var needToUpdateToken  = false
-    public      var updateTokenIsNeeded: (() -> Void)?
+    private       var config                 : PaynlConfiguration?
+    private       var authenticationResponse : PaynlAuthenticationTokensBrowseResponse?
+    public static let shared                 = PaynlConnectionContext()
 
-    public init(configPath: String) {
-        self.config = loadConfig(atPath: configPath)
+    public init(configPath: String = "/configPath") {
+        self.config = parseConfig(atPath: configPath)
     }
 
-    private func validTokens() -> [PaynlAuthenticationTokenTest]? {
-        guard let tokens = tokens
-        else { return nil }
-
-        needToUpdateToken = true
-        let currentDate   = Date()
-
-        let validTokens = tokens.filter { token in
-            guard let expDate = token.expDate else { return false }
-
-            let timeInterval        = currentDate.timeIntervalSince(expDate)
-            let isExpired           = timeInterval > 0
-            let isCloseToExpiration = -timeInterval < duration
-
-            // Dont update needToUpdateToken unless all tokens are invalid
-            needToUpdateToken = needToUpdateToken ? (isExpired || isCloseToExpiration) : needToUpdateToken
-
-            return !isExpired
-        }
-
-        return validTokens
-    }
-
-    private func loadConfig(atPath path: String) -> PaynlConfiguration? {
+    private func parseConfig(atPath path: String) -> PaynlConfiguration? {
         do    { return try Data.decode(from: path, as: PaynlConfiguration.self) }
         catch { return nil }
     }
 
-    private func fetchTokens() async -> [PaynlAuthenticationTokenTest]? {
-        // TODO: Implement me!
-        return nil
-    }
-}
+    internal func fetchTokens() async -> PaynlAuthenticationTokensBrowseResponse? {
+        let url = URL(string: "https://rest.pay.nl/v2/authenticationtokens")!
 
-// MARK: - Timer
-extension PaynlConnectionContext {
-    private func startTimer() {
-        stopTimer()
-        let mSelf = self
+        do {
+            guard let merchantId = PaynlConnectionContext.shared.merchantId
+            else { return nil }
 
-        // TODO: This will be called when no valid token remains within the next 5min
-        timer = Timer.scheduledTimer(withTimeInterval: duration, repeats: false) { _ in
-            mSelf.updateTokenIsNeeded?()
+            guard let config = config
+            else { return nil }
+
+            let token   = createToken(secretCode: config.secret, tokenCode: config.tokenCode)
+            let headers = NetworkService.Constants.apiHeaders(with: token)
+
+            let resp = try await NetworkService.shared.requestAsync(
+                PaynlAuthenticationTokensBrowseResponse.self, url: url, headers: headers, body: ["merchantId": merchantId])
+
+            return resp
+        } catch {
+            // print("PaynlAuthenticationTokens request failed: \(error)")
+            return nil
         }
-    }
-
-    private func stopTimer() {
-        timer?.invalidate()
-        timer = nil
     }
 }
 
 // MARK: - PaynlConnectionContextProtocol
 public protocol PaynlConnectionContextProtocol {
-    var serviceId: String? { get }
-    var token    : String? { get async }
+    var serviceId : String? { get }
+    var merchantId: String? { get }
+    var token     : String? { get async }
 }
 
 extension PaynlConnectionContext: PaynlConnectionContextProtocol {
-    public var serviceId: String? {
-        self.config?.serverId
-    }
+    public var serviceId:  String? { self.config?.serviceId  }
+    public var merchantId: String? { self.config?.merchantId }
 
     public var token: String? {
         get async {
-            if let token = validTokens()?.first?.token { return token }
+
+            /// Check if the array has valid authenticationTokens objects
+            guard let object = self.authenticationResponse?.validAuthenticationTokens()?.first
             else {
-                self.tokens = await fetchTokens()
-                return validTokens()?.first?.token
+                /// Load array of authenticationTokens, find valid objects, create a token and return it
+                self.authenticationResponse = await fetchTokens()
+                if let object = self.authenticationResponse?.validAuthenticationTokens()?.first {
+                    let token = createToken(secretCode: object.secret, tokenCode: object.code)
+                    return token
+                }
+
+                return nil
             }
+
+            /// Create a token form valid authenticationToken object
+            let token = createToken(secretCode: object.secret, tokenCode: object.code)
+            return token
         }
     }
-}
 
-// MARK: - Test type with minimal fields
-private struct PaynlAuthenticationTokenTest {
-    let deletedAt: String?
-    let token    : String
-
-    var expDate: Date? {
-        let formatter           = ISO8601DateFormatter()
-        formatter.timeZone      = TimeZone.current
-        formatter.formatOptions = [.withInternetDateTime]
-
-        guard let deletedAt = deletedAt, let date = formatter.date(from: deletedAt)
-        else { return nil }
-
-        return date
+    private func createToken(secretCode: String, tokenCode: String) -> String {
+        Data("\(tokenCode):\(secretCode)".utf8).base64EncodedString()
     }
 }
 
 // MARK: - PaynlConfiguration
 private struct PaynlConfiguration: Codable {
-    let serverId: String
+    let secret    : String
+    let tokenCode : String
+    let serviceId : String
+    let merchantId: String
 }
