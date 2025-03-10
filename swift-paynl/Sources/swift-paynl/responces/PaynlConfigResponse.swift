@@ -16,7 +16,7 @@ struct PaynlConfigResponse: Codable {
     let mcc             : Int
     let category        : Category
     let merchant        : Merchant
-    let layout          : Layout
+    let layout          : Layout?
     let tradeName       : Trade
     let address         : Address
     let translations    : Translations
@@ -24,7 +24,7 @@ struct PaynlConfigResponse: Codable {
     let createdBy       : String
     let modifiedAt      : String
     let modifiedBy      : String
-    let turnoverGroup   : String?
+    let turnoverGroup   : TurnoverGroup?
     let deletedAt       : String?
     let deletedBy       : String?
     let tguList         : [TGU]
@@ -54,7 +54,7 @@ struct PaynlConfigResponse: Codable {
         let code                : String
         let name                : String
         let status              : String // TODO: what type should be used for "ACTIVE"?
-        let incorporationCountry: String // TODO: ... "NL"
+        let incorporationCountry: String? // TODO: ... "NL"
     }
 
     // MARK: - Category
@@ -98,7 +98,7 @@ struct PaynlConfigResponse: Codable {
         let image         : String
         let translations  : Translations
         let paymentMethods: [PaymentMethod]
-        let requiredFields: [RequiredField]
+        let requiredFields: [RequiredField]?
     }
 
     // MARK: - PaymentMethod
@@ -107,7 +107,7 @@ struct PaynlConfigResponse: Codable {
         let name        : String
         let image       : String
         let options     : [Option]
-        let settings    : [Setting]
+        let settings    : [Setting]?
         let minAmount   : Int
         let maxAmount   : Int
         let description : String?
@@ -133,9 +133,9 @@ struct PaynlConfigResponse: Codable {
     // MARK: - CheckoutSequence
     struct CheckoutSequence: Codable { // TODO: is countryList("NL", "DE", "BE") dynamic or fixed?
         let `default`: CheckoutCountry
-        let nl       : CheckoutCountry
-        let de       : CheckoutCountry
-        let be       : CheckoutCountry
+        let nl       : CheckoutCountry?
+        let de       : CheckoutCountry?
+        let be       : CheckoutCountry?
 
         enum CodingKeys: String, CodingKey {
             case `default` = "default"
@@ -155,8 +155,8 @@ struct PaynlConfigResponse: Codable {
     struct EncryptionKey: Codable {
         let identifier: String
         let publicKey : String
-        let createdAt : Date
-        let expiresAt : Date
+        let createdAt : String // Date
+        let expiresAt : String // Date
     }
 
     // MARK: - TGU
@@ -170,6 +170,12 @@ struct PaynlConfigResponse: Codable {
             case id = "ID"
             case share, domain, status
         }
+    }
+
+    // MARK: - TurnoverGroup
+    struct TurnoverGroup: Codable {
+        let name : String
+        let code : String
     }
 }
 
