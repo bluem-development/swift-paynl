@@ -5,7 +5,7 @@ import PackageDescription
 
 let package = Package(
     name: "swift-paynl",
-    platforms: [.macOS(.v14)],
+    platforms: [.macOS(.v14), .watchOS(.v7)],
     products: [
         // Products define the executables and libraries a package produces, making them visible to other packages.
         .library(name: "swift-paynl", targets: ["swift-paynl"]),
