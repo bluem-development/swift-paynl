@@ -15,7 +15,6 @@ final class NetworkService {
     private init(session: URLSession = .shared) { self.session = session }
 
 
-    @available(macOS 12.0, iOS 15.0, *)
     func requestAsync<T: Decodable>(
         _ type : T.Type,
         url    : URL,
