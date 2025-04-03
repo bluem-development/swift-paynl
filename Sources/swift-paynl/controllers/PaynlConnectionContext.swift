@@ -40,7 +40,7 @@ public class PaynlConnectionContext {
         let url = URL(string: "https://rest.pay.nl/v2/authenticationtokens")!
 
         do {
-            guard let merchantId = PaynlConnectionContext.shared.merchantId
+            guard let merchantId = self.merchantId
             else { return nil }
 
             guard let config = config
