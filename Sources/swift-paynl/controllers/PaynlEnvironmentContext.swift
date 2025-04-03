@@ -9,7 +9,9 @@ import Foundation
 
 public class PaynlEnvironmentContext {
 
-    public init() {}
+    public init(configPath: String = "/configPath") {
+        PaynlConnectionContext.configure(from: configPath)
+    }
 
     public func fetchConfiguration() async -> PaynlConfigResponse? {
         let url = URL(string: "https://rest.pay.nl/v2/services/config")!

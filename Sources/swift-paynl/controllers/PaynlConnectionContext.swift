@@ -23,15 +23,29 @@ public class PaynlConnectionContext {
      */
 
 
-    private       var config                 : PaynlConfiguration?
-    private       var authenticationResponse : PaynlAuthenticationTokensBrowseResponse?
-    public static let shared                 = PaynlConnectionContext()
+    private        var config                 : PaynlConfiguration?
+    private        var authenticationResponse : PaynlAuthenticationTokensBrowseResponse?
+    private static var instance               : PaynlConnectionContext?
 
-    public init(configPath: String = "/configPath") {
-        self.config = parseConfig(atPath: configPath)
+    public static var shared: PaynlConnectionContext {
+        guard let instance = instance
+        else  { fatalError("The PaynlConnectionContext.shared accessed before initialization.") }
+
+        return instance
     }
 
-    private func parseConfig(atPath path: String) -> PaynlConfiguration? {
+    public static func configure(from path: String = "/configPath") {
+        guard instance == nil else { return }
+
+        let config = parseConfig(atPath: path)
+        instance   = PaynlConnectionContext(config: config)
+    }
+
+    private init(config: PaynlConfiguration?) {
+        self.config = config
+    }
+
+    private static func parseConfig(atPath path: String) -> PaynlConfiguration? {
         do    { return try Data.decode(from: path, as: PaynlConfiguration.self) }
         catch { return nil }
     }
