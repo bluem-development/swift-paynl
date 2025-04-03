@@ -8,7 +8,7 @@
 import Foundation
 
 // MARK: - PaynlConfigResponse
-struct PaynlConfigResponse: Codable {
+public struct PaynlConfigResponse: Codable {
     let code            : String
     let secret          : String
     let name            : String

@@ -7,14 +7,11 @@
 
 import Foundation
 
-class PaynlEnvironmentContext {
+public class PaynlEnvironmentContext {
 
-    //    Configuration:
-    //    - Url: `https://rest.pay.nl/v2/services/config`
-    //    - Method: `GET`
-    //    - Status: `200`
+    public init() {}
 
-    func fetchConfiguration() async -> PaynlConfigResponse? {
+    public func fetchConfiguration() async -> PaynlConfigResponse? {
         let url = URL(string: "https://rest.pay.nl/v2/services/config")!
 
         do {
@@ -23,14 +20,13 @@ class PaynlEnvironmentContext {
 
             guard let token = await PaynlConnectionContext.shared.token
             else { return nil }
-            let headers = NetworkService.Constants.apiHeaders(with: token)
+            let headers = PaynlNetworkService.Constants.apiHeaders(with: token)
 
-            let config = try await NetworkService.shared.requestAsync(
+            let config = try await PaynlNetworkService.shared.requestAsync(
                 PaynlConfigResponse.self, url: url, headers: headers, body: ["serviceId": serviceId])
 
             return config
         } catch {
-            // print("Config request failed: \(error)")
             return nil
         }
     }
