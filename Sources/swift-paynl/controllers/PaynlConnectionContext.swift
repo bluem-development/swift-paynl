@@ -47,9 +47,9 @@ public class PaynlConnectionContext {
             else { return nil }
 
             let token   = createToken(secretCode: config.secret, tokenCode: config.tokenCode)
-            let headers = NetworkService.Constants.apiHeaders(with: token)
+            let headers = PaynlNetworkService.Constants.apiHeaders(with: token)
 
-            let resp = try await NetworkService.shared.requestAsync(
+            let resp = try await PaynlNetworkService.shared.requestAsync(
                 PaynlAuthenticationTokensBrowseResponse.self, url: url, headers: headers, body: ["merchantId": merchantId])
 
             return resp
