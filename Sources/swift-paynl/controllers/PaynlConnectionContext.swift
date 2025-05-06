@@ -7,26 +7,14 @@
 
 import Foundation
 
-// TODO: Switch to actor in the future
 public class PaynlConnectionContext {
-    /*
-     Overview
-
-     1. The `token` is mandatory for authenticating API requests
-     - API endpoint: https://rest.pay.nl/v2/authenticationtokens
-     - The `authenticationtokens` API request returns all authentication tokens (an array of token objects)
-     - If a token is requested but all tokens are expired, a new API request must be sent to retrieve and return a valid token
-
-     2. The `serviceId` is mandatory for performing an API call
-     - Link: https://my.pay.nl/programs/programs
-     - The value of serviceId is retrieved from an external directory. The directory path is passed as an argument to the `PaynlConnectionContext` initializer
-     */
-
-
     private        var config                 : PaynlConfiguration?
     private        var authenticationResponse : PaynlAuthenticationTokensBrowseResponse?
     private static var instance               : PaynlConnectionContext?
 
+    /// Provides access to the shared singleton instance.
+    ///
+    /// - Returns: The initialized shared instance of `PaynlConnectionContext`.
     public static var shared: PaynlConnectionContext {
         guard let instance = instance
         else  { fatalError("The PaynlConnectionContext.shared accessed before initialization.") }
@@ -34,6 +22,9 @@ public class PaynlConnectionContext {
         return instance
     }
 
+    /// Configures and initializes the shared singleton context.
+    ///
+    /// - Parameter path: The path to the configuration file.
     public static func configure(from path: String = "/configPath") {
         guard instance == nil else { return }
 
@@ -41,17 +32,28 @@ public class PaynlConnectionContext {
         instance   = PaynlConnectionContext(config: config)
     }
 
+    /// Initializes the context with a given configuration.
+    ///
+    /// - Parameter config: The loaded `PaynlConfiguration` object.
     private init(config: PaynlConfiguration?) {
         self.config = config
     }
 
+    /// Parses the configuration file from a given path.
+    ///
+    /// - Parameter path: The file path to the configuration.
+    /// - Returns: A decoded `PaynlConfiguration` object, or `nil` if decoding fails.
     private static func parseConfig(atPath path: String) -> PaynlConfiguration? {
         do    { return try Data.decode(from: path, as: PaynlConfiguration.self) }
         catch { return nil }
     }
 
+    /// Asynchronously fetches authentication tokens from the API.
+    ///
+    /// - Returns: A `PaynlAuthenticationTokensBrowseResponse` if successful, or `nil` on failure.
     internal func fetchTokens() async -> PaynlAuthenticationTokensBrowseResponse? {
-        let url = URL(string: "https://rest.pay.nl/v2/authenticationtokens")!
+        let urlString = PaynlConstants.baseURL + PaynlConstants.authTokensEndpoint
+        let url       = URL(string: urlString)!
 
         do {
             guard let merchantId = self.merchantId
@@ -67,10 +69,8 @@ public class PaynlConnectionContext {
                 PaynlAuthenticationTokensBrowseResponse.self, url: url, headers: headers, body: ["merchantId": merchantId])
 
             return resp
-        } catch {
-            // print("PaynlAuthenticationTokens request failed: \(error)")
-            return nil
         }
+        catch { return nil }
     }
 }
 
@@ -85,13 +85,18 @@ extension PaynlConnectionContext: PaynlConnectionContextProtocol {
     public var serviceId:  String? { self.config?.serviceId  }
     public var merchantId: String? { self.config?.merchantId }
 
+
+    /// Asynchronously provides a valid authorization token.
+    ///
+    /// This property checks if there is already a valid authentication token available.
+    /// If not, it will attempt to fetch new tokens from the server, generate the token, and return it.
+    ///
+    /// - Returns: A Base64-encoded token string if successful, or `nil` if token generation fails.
     public var token: String? {
         get async {
 
-            /// Check if the array has valid authenticationTokens objects
             guard let object = self.authenticationResponse?.validAuthenticationTokens()?.first
             else {
-                /// Load array of authenticationTokens, find valid objects, create a token and return it
                 self.authenticationResponse = await fetchTokens()
                 if let object = self.authenticationResponse?.validAuthenticationTokens()?.first {
                     let token = createToken(secretCode: object.secret, tokenCode: object.code)
@@ -101,12 +106,17 @@ extension PaynlConnectionContext: PaynlConnectionContextProtocol {
                 return nil
             }
 
-            /// Create a token form valid authenticationToken object
             let token = createToken(secretCode: object.secret, tokenCode: object.code)
             return token
         }
     }
 
+    /// Generates a Base64-encoded token string using the provided secret and token code.
+    ///
+    /// - Parameters:
+    ///   - secretCode: The `secretCode` used for token generation.
+    ///   - tokenCode:  The `tokenCode` used for token generation.
+    /// - Returns: A Base64-encoded token string.
     private func createToken(secretCode: String, tokenCode: String) -> String {
         Data("\(tokenCode):\(secretCode)".utf8).base64EncodedString()
     }

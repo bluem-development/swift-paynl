@@ -9,12 +9,19 @@ import Foundation
 
 public class PaynlEnvironmentContext {
 
+    /// Initializes the `PaynlEnvironmentContext` by configuring the shared connection context.
+    ///
+    /// - Parameter configPath: The path to the configuration file.
     public init(configPath: String = "/configPath") {
         PaynlConnectionContext.configure(from: configPath)
     }
 
+    /// Asynchronously fetches the configuration details from the API.
+    ///
+    /// - Returns: A `PaynlConfigResponse` if the request is successful, or `nil` on failure.
     public func fetchConfiguration() async -> PaynlConfigResponse? {
-        let url = URL(string: "https://rest.pay.nl/v2/services/config")!
+        let urlString = PaynlConstants.baseURL + PaynlConstants.configEndpoint
+        let url       = URL(string: urlString)!
 
         do {
             guard let serviceId = PaynlConnectionContext.shared.serviceId
@@ -28,8 +35,7 @@ public class PaynlEnvironmentContext {
                 PaynlConfigResponse.self, url: url, headers: headers, body: ["serviceId": serviceId])
 
             return config
-        } catch {
-            return nil
         }
+        catch { return nil }
     }
 }
