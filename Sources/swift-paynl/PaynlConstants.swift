@@ -10,4 +10,5 @@ struct PaynlConstants {
     static let configEndpoint         = "/services/config"
     static let authTokensEndpoint     = "/authenticationtokens"
     static let transactionsEndpoint   = "/transactions"
+    static let paymentMethodsEndpoint = "/paymentmethods"
 }
