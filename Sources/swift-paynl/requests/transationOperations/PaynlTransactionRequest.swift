@@ -38,7 +38,7 @@ public struct PaynlTransactionRequest: Encodable {
     /// Indicates if the service is in test mode or not, possible values: false or true
     let integration: Integration?
 
-    init(serviceId: String,
+    public init(serviceId: String,
          description: String? = nil,
          expire: String? = nil,
          returnUrl: String,

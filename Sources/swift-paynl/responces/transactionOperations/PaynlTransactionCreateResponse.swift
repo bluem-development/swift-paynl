@@ -70,7 +70,7 @@ struct Stats: Codable {
 }
 
 // MARK: - Amount
-struct Amount: Codable {
+public struct Amount: Codable {
     let value   : Int
     let currency: String
 }
