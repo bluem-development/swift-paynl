@@ -7,12 +7,12 @@
 
 import Foundation
 
-struct PaynlTransactionInfoResponse: Codable {
+public struct PaynlTransactionInfoResponse: Codable {
     let id             : String
     let orderId        : String
     let serviceCode    : String
     let description    : String
-    let reference      : String
+    let reference      : String?
     let ipAddress      : String
     let status         : Status
     let expiresAt      : String
@@ -28,11 +28,12 @@ struct PaynlTransactionInfoResponse: Codable {
     let amountRefunded : Amount
     let paymentData    : PaymentData
     let paymentMethod  : PaymentMethod
-    let customer       : Customer
-    let order          : Order
-    let stats          : Stats
-    let transferData   : [String]
+    let customer       : Customer?
+    let order          : Order?
+    let stats          : Stats?
+    let transferData   : [String]?
     let links          : [Link]
+    let integration    : Integration?
 
     enum CodingKeys: String, CodingKey {
         case id
@@ -59,24 +60,25 @@ struct PaynlTransactionInfoResponse: Codable {
         case modifiedBy
         case deletedAt
         case deletedBy
+        case integration
         case links = "_links"
     }
 
     struct PaymentData: Codable {
         let method                   : String
         let customerKey              : String
-        let customerId               : String
+        let customerId               : String?
         let customerName             : String
         let ipAddress                : String
         let paymentVerificationMethod: Int
-        let iban                     : IBAN
+        let iban                     : IBAN?
         let secureStatus             : Bool
     }
 
     struct PaymentMethod: Codable {
         let id   : Int
         let subId: Int
-        let name : String
+        let name : String?
     }
 
     struct Customer: Codable {
@@ -107,15 +109,6 @@ struct PaynlTransactionInfoResponse: Codable {
         let countryCode: String
     }
 
-    struct Order: Codable {
-        let countryCode    : String
-        let deliveryDate   : String
-        let invoiceDate    : String
-        let deliveryAddress: Address
-        let invoiceAddress : Address
-        let products       : [Product]
-    }
-
     struct Address: Codable {
         let firstName            : String
         let lastName             : String
@@ -128,15 +121,6 @@ struct PaynlTransactionInfoResponse: Codable {
         let streetNumberExtension: String
     }
 
-    struct Product: Codable {
-        let id         : String
-        let type       : String
-        let price      : Amount
-        let quantity   : Int
-        let vatCode    : String
-        let description: String
-    }
-
     struct Stats: Codable {
         let info    : String
         let tool    : String
@@ -146,4 +130,22 @@ struct PaynlTransactionInfoResponse: Codable {
         let extra3  : String
         let domainId: String?
     }
+}
+
+struct Order: Codable {
+    let countryCode    : String
+    let deliveryDate   : String
+    let invoiceDate    : String
+    let deliveryAddress: Address
+    let invoiceAddress : Address
+    let products       : [Product]
+}
+
+struct Product: Codable {
+    let id         : String
+    let type       : String
+    let price      : Amount
+    let quantity   : Int
+    let vatCode    : String
+    let description: String
 }
