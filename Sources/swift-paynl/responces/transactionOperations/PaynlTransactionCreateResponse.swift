@@ -53,12 +53,16 @@ public struct Status: Codable {
 }
 
 // MARK: - Integration
-struct Integration: Codable {
+public struct Integration: Codable {
     let testMode: Bool
+    
+    public init(testMode: Bool) {
+        self.testMode = testMode
+    }
 }
 
 // MARK: - Stats
-struct Stats: Codable {
+public struct Stats: Codable {
     let promotorId: Int
     let extra1    : String
     let extra2    : String
@@ -107,7 +111,7 @@ struct Payment: Codable {
 }
 
 // MARK: - PaymentMethod
-struct PaymentMethod: Codable {
+public struct PaymentMethod: Codable {
     let id   : String
     let input: Input
 }
@@ -125,7 +129,7 @@ struct CheckoutData: Codable {
 }
 
 // MARK: - Customer
-struct Customer: Codable {
+public struct Customer: Codable {
     let email      : String
     /// The forename (also known as a given name, Christian name or a first name). Length between 1 and 64.
     let firstName  : String
@@ -174,7 +178,7 @@ struct Address: Codable {
 }
 
 // MARK: - TransferData
-struct TransferData: Codable {
+public struct TransferData: Codable {
     /// The name of the variable to be tracked in the transaction.
     let name : String
     /// The value of the variable to be tracked in the transaction.
@@ -182,7 +186,7 @@ struct TransferData: Codable {
 }
 
 // MARK: - PaynlNotification
-struct PaynlNotification: Codable {
+public struct PaynlNotification: Codable {
     /// Use "push" for push messages, or "email" to send out an email.
     let type: String
     /// The recipient of the notification. For push messages, use your device id (AD-XXXX-XXXX). For email, provide a valid email address (XXXX@XXXX.XX).

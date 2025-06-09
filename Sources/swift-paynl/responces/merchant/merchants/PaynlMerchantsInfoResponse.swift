@@ -162,7 +162,7 @@ struct Service: Codable {
     let urls       : [Url]
 }
 
-struct Url: Codable {
+public struct Url: Codable {
     let code   : String
     let website: String
 }

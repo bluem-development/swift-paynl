@@ -132,7 +132,7 @@ public struct PaynlTransactionInfoResponse: Codable {
     }
 }
 
-struct Order: Codable {
+public struct Order: Codable {
     let countryCode    : String
     let deliveryDate   : String
     let invoiceDate    : String
