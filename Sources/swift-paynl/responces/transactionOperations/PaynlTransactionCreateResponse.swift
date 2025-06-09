@@ -73,6 +73,11 @@ struct Stats: Codable {
 public struct Amount: Codable {
     let value   : Int
     let currency: String
+
+    public init(value: Int, currency: String) {
+        self.value    = value
+        self.currency = currency
+    }
 }
 
 // MARK: - Links
