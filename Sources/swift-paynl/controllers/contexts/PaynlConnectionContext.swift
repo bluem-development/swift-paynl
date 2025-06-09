@@ -14,15 +14,15 @@ public class PaynlConnectionContext {
 
     /// Provides access to the shared singleton instance.
     ///
-    /// - Returns: The initialized shared instance of `PaynlConnectionContext`.
+    /// - Returns: The initialised shared instance of `PaynlConnectionContext`.
     public static var shared: PaynlConnectionContext {
         guard let instance = instance
-        else  { fatalError("The PaynlConnectionContext.shared accessed before initialization.") }
+        else  { fatalError("The PaynlConnectionContext.shared accessed before initialisation.") }
 
         return instance
     }
 
-    /// Configures and initializes the shared singleton context.
+    /// Configures and initialises the shared singleton context.
     ///
     /// - Parameter path: The path to the configuration file.
     public static func configure(from path: String = "/configPath") {
@@ -32,7 +32,7 @@ public class PaynlConnectionContext {
         instance   = PaynlConnectionContext(config: config)
     }
 
-    /// Initializes the context with a given configuration.
+    /// Initialises the context with a given configuration.
     ///
     /// - Parameter config: The loaded `PaynlConfiguration` object.
     private init(config: PaynlConfiguration?) {
@@ -86,7 +86,7 @@ extension PaynlConnectionContext: PaynlConnectionContextProtocol {
     public var merchantId: String? { self.config?.merchantId }
 
 
-    /// Asynchronously provides a valid authorization token.
+    /// Asynchronously provides a valid authorisation token.
     ///
     /// This property checks if there is already a valid authentication token available.
     /// If not, it will attempt to fetch new tokens from the server, generate the token, and return it.
@@ -117,7 +117,7 @@ extension PaynlConnectionContext: PaynlConnectionContextProtocol {
     ///   - secretCode: The `secretCode` used for token generation.
     ///   - tokenCode:  The `tokenCode` used for token generation.
     /// - Returns: A Base64-encoded token string.
-    private func createToken(secretCode: String, tokenCode: String) -> String {
+    func createToken(secretCode: String, tokenCode: String) -> String {
         Data("\(tokenCode):\(secretCode)".utf8).base64EncodedString()
     }
 }

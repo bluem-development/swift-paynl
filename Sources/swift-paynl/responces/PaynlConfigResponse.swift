@@ -43,24 +43,12 @@ public struct PaynlConfigResponse: Codable {
              checkoutOptions, checkoutSequence, checkoutTexts, encryptionKeys, tguList
     }
 
-
-    // MARK: - Translation
-    struct Translations: Codable {
-        let name: [String: String]
-    }
-
     // MARK: - Merchant
     struct Merchant: Codable {
         let code                : String
         let name                : String
         let status              : String // TODO: what type should be used for "ACTIVE"?
         let incorporationCountry: String? // TODO: ... "NL"
-    }
-
-    // MARK: - Category
-    struct Category: Codable {
-        let code: String
-        let name: String
     }
 
     // MARK: - Layout

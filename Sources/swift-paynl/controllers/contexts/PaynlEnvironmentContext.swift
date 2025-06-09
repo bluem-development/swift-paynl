@@ -9,7 +9,7 @@ import Foundation
 
 public class PaynlEnvironmentContext {
 
-    /// Initializes the `PaynlEnvironmentContext` by configuring the shared connection context.
+    /// Initialises the `PaynlEnvironmentContext` by configuring the shared connection context.
     ///
     /// - Parameter configPath: The path to the configuration file.
     public init(configPath: String = "/configPath") {

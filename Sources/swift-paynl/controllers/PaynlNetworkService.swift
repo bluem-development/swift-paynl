@@ -12,7 +12,7 @@ final class PaynlNetworkService {
     static  let shared = PaynlNetworkService()
     private let session: URLSession
 
-    /// Initializes the network service with a given URL session.
+    /// Initialises the network service with a given URL session.
     ///
     /// - Parameter session: A `URLSession` instance used for executing network requests.
     private init(session: URLSession = .shared) { self.session = session }
@@ -51,10 +51,10 @@ final class PaynlNetworkService {
         guard let componentsUrl = components?.url else { throw PaynlNetworkError.invalidURL }
 
         var request                 = URLRequest(url: componentsUrl)
-        request.httpMethod          = method.rawValue
-        request.allHTTPHeaderFields = headers
-        request.httpBody            = requestBody
         request.timeoutInterval     = Constants.timeoutInterval
+        request.httpMethod          = method.rawValue
+        request.httpBody            = requestBody
+        request.allHTTPHeaderFields = headers
 
         let (data, response) = try await session.data(for: request)
         return try handleResponse(data: data, response: response)
@@ -88,6 +88,7 @@ extension PaynlNetworkService {
         static func apiHeaders(with token: String) -> [String: String] {
             [
                 "accept": "application/json",
+                "content-type": "application/json",
                 "authorization": "Basic \(token)"
             ]
         }
