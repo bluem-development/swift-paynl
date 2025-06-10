@@ -24,7 +24,7 @@ public struct PaynlTransactionRequest: Encodable {
     let amount: Amount
     /// Payment option ID, e.g. 10 for iDEAL. See: services/get/sl-xxxx-xxx.
     /// Sub-ID of the payment option, e.g. bank ID for iDEAL. See: services/get/sl-xxxx-xxx.
-    let paymentMethod: PaymentMethod?
+    let paymentMethod: PaynlTransactionPaymentMethod?
     /// Represents `customer` object's details.
     let customer: Customer?
     /// Represents `order` object's details.
@@ -44,7 +44,7 @@ public struct PaynlTransactionRequest: Encodable {
          returnUrl: String,
          exchangeUrl: Url? = nil,
          amount: Amount,
-         paymentMethod: PaymentMethod? = nil,
+         paymentMethod: PaynlTransactionPaymentMethod? = nil,
          customer: Customer? = nil,
          order: Order? = nil,
          stats: Stats? = nil,
@@ -65,5 +65,17 @@ public struct PaynlTransactionRequest: Encodable {
         self.notification  = notification
         self.transferData  = transferData
         self.integration   = integration
+    }
+}
+
+public struct PaynlTransactionPaymentMethod: Codable {
+    /// Payment option ID, e.g. 10 for iDEAL. See: services/get/sl-xxxx-xxx.
+    public let id: String
+    /// Sub-ID of the payment option, e.g. bank ID for iDEAL. See: services/get/sl-xxxx-xxx.
+    public let subId: String
+
+    public init(id: String, subId: String) {
+        self.id = id
+        self.subId = subId
     }
 }
