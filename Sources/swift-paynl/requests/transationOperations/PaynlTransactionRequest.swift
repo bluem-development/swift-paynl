@@ -70,12 +70,12 @@ public struct PaynlTransactionRequest: Encodable {
 
 public struct PaynlTransactionPaymentMethod: Codable {
     /// Payment option ID, e.g. 10 for iDEAL. See: services/get/sl-xxxx-xxx.
-    public let id: String
+    public let id: Int
     /// Sub-ID of the payment option, e.g. bank ID for iDEAL. See: services/get/sl-xxxx-xxx.
     public let subId: String
 
-    public init(id: String, subId: String) {
-        self.id = id
+    public init(id: Int, subId: String) {
+        self.id    = id
         self.subId = subId
     }
 }
