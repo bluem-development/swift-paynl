@@ -114,6 +114,11 @@ struct Payment: Codable {
 public struct PaymentMethod: Codable {
     let id   : String
     let input: Input
+
+    public init(id: String, input: Input) {
+        self.id   = id
+        self.input = input
+    }
 }
 
 // MARK: - Input
