@@ -122,8 +122,12 @@ public struct PaymentMethod: Codable {
 }
 
 // MARK: - Input
-struct Input: Codable {
+public struct Input: Codable {
     let issuerId: String
+
+    public init(issuerId: String) {
+        self.issuerId = issuerId
+    }
 }
 
 // MARK: - CheckoutData
